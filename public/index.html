@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilhete de Ouro - Rifas Online</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎫 Bilhete de Ouro</h1>
+        <nav>
+            <a href="/">Início</a>
+            <a href="/compras.html">Minhas Compras</a>
+            <a href="/resultados.html">Resultados</a>
+            <a href="#" class="btn-bingo-nav">🎲 Jogar Bingo do Pix</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2 class="title">Rifas em Destaque</h2>
+        <div class="grid-rifas" id="rifas-list">
+            <p>Carregando campanhas...</p>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const list = document.getElementById('rifas-list');
+            const rifas = await fetchAPI('/api/rifas');
+            
+            list.innerHTML = '';
+            if(rifas.length === 0) return list.innerHTML = '<p>Nenhuma rifa ativa.</p>';
+
+            rifas.forEach(rifa => {
+                const isEncerrada = rifa.status !== 'ativa';
+                list.innerHTML += `
+                    <div class="card" style="${isEncerrada ? 'opacity: 0.7' : ''}">
+                        <h3>${rifa.titulo}</h3>
+                        <p>${rifa.premio}</p>
+                        <span class="price">R$ ${rifa.valorNumero.toFixed(2)}</span>
+                        ${isEncerrada ? 
+                            `<button class="btn" style="background: #555;" disabled>${rifa.status.toUpperCase()}</button>` : 
+                            `<a href="/rifa.html?id=${rifa._id}" class="btn">Comprar Números</a>`
+                        }
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

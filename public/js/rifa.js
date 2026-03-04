@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             rifaImage.src = rifaData.imagemBase64;
             rifaImage.style.display = 'block';
         }
-        
+
         atualizarCheckout();
     } catch (error) {
         alert('Erro ao carregar rifa.');
@@ -47,13 +47,34 @@ function atualizarCheckout() {
     document.getElementById('valor-total').innerText = `Total: R$ ${total.toFixed(2)}`;
 }
 
+function baixarComprovanteTexto(dados) {
+    const linhas = [
+        'COMPROVANTE DE COMPRA - BILHETE DE OURO',
+        `Rifa: ${rifaData.titulo}`,
+        `Compra ID: ${dados.compraId}`,
+        `Comprovante: ${dados.comprovante.numero}`,
+        `Hash de Verificação: ${dados.comprovante.hash}`,
+        `Valor Total: R$ ${dados.comprovante.valorTotal.toFixed(2)}`,
+        `Data: ${new Date(dados.comprovante.criadoEm).toLocaleString('pt-BR')}`,
+        `Números: ${dados.numerosGerados.join(', ')}`
+    ];
+
+    const blob = new Blob([linhas.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${dados.comprovante.numero}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 document.getElementById('form-compra').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const nome = document.getElementById('nome').value;
     const telefone = document.getElementById('telefone').value;
     const btn = document.getElementById('btn-finalizar');
-    
+
     btn.innerText = 'Processando...';
     btn.disabled = true;
 
@@ -62,20 +83,32 @@ document.getElementById('form-compra').addEventListener('submit', async (e) => {
             method: 'POST',
             body: JSON.stringify({ rifaId, nome, telefone, quantidade })
         });
-        
+
         // Esconde o form e mostra o resultado
         document.getElementById('form-compra').style.display = 'none';
         const panelSucesso = document.getElementById('sucesso-panel');
         panelSucesso.style.display = 'block';
-        
+
         // Renderiza as tags dos números
         const containerNumeros = document.getElementById('numeros-gerados');
+        containerNumeros.innerHTML = '';
         res.numerosGerados.forEach(num => {
             const span = document.createElement('span');
             span.className = 'num-tag';
             span.innerText = num;
             containerNumeros.appendChild(span);
         });
+
+        // Exibe comprovante
+        const compInfo = document.getElementById('comprovante-info');
+        compInfo.innerHTML = `
+            <p style="margin-top:10px;"><strong>Comprovante:</strong> ${res.comprovante.numero}</p>
+            <p style="font-size: 0.85rem; color: var(--text-light); word-break: break-all;"><strong>Hash:</strong> ${res.comprovante.hash}</p>
+        `;
+
+        const btnDownload = document.getElementById('btn-comprovante');
+        btnDownload.style.display = 'block';
+        btnDownload.onclick = () => baixarComprovanteTexto(res);
 
     } catch (error) {
         showAlert('alert-box', error.message);

@@ -2,59 +2,72 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Comprar Cotas - Bilhete de Ouro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Comprar Cota - Bilhete de Ouro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <header>
-        <h1>🎫 Bilhete de Ouro</h1>
-        <nav><a href="/">Voltar ao Início</a></nav>
+
+    <header class="hero-header" style="padding-bottom: 50px;">
+        <div class="top-bar">
+            <a href="/" class="logo-area"><i class="fa-solid fa-ticket-simple"></i> BILHETE<span class="highlight">OURO</span></a>
+            <a href="/" class="btn-nav-outline"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+        </div>
     </header>
 
-    <main class="container" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-        <div style="flex: 1; min-width: 300px; max-width: 500px; text-align: center;">
-            <div class="card" style="border-color: var(--primary);">
-                <h2 class="title" id="rifa-title">Carregando...</h2>
-                <p id="rifa-desc" style="color: var(--text-muted); font-size: 1.1rem;"></p>
-                <div style="background: var(--bg-dark); padding: 10px; border-radius: 6px; margin: 15px 0;">
-                    <strong style="color: var(--secondary); font-size: 1.2rem;">🏆 Sorteio pela Loteria Federal</strong><br>
-                    <small>Ao comprar 1 cota, você recebe 2 números de 4 dígitos gerados aleatoriamente.</small>
+    <main class="container" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start;">
+        
+        <div class="card" style="flex: 1; min-width: 300px; max-width: 450px;">
+            <p style="color: var(--primary-color); font-weight: 900; font-size: 0.8rem; letter-spacing: 1px;"><i class="fa-solid fa-star"></i> PRÊMIO PRINCIPAL</p>
+            <h2 id="rifa-title" class="card-title" style="font-size: 1.5rem; margin-top: 5px;">Carregando...</h2>
+            <p id="rifa-desc" class="card-desc" style="font-size: 1rem;"></p>
+            
+            <div class="info-box">
+                <i class="fa-solid fa-clover info-icon"></i>
+                <div>
+                    <strong style="color: #d97706; font-size: 0.95rem;">Loteria Federal</strong>
+                    <p style="font-size: 0.85rem; color: var(--text-dark); margin-top: 5px; font-family: 'Roboto';">Comprando 1 cota, você recebe 2 números da sorte.</p>
                 </div>
-                
-                <h3 style="margin-top: 20px;">Quantas cotas deseja?</h3>
-                <div class="qty-selector">
-                    <button class="qty-btn" onclick="mudarQtd(-1)">-</button>
-                    <span class="qty-display" id="qtd-cotas">1</span>
-                    <button class="qty-btn" onclick="mudarQtd(1)">+</button>
-                </div>
-                <p>Você receberá <strong id="qtd-numeros" style="color: var(--primary)">2</strong> números.</p>
             </div>
+            
+            <h3 style="margin-top: 20px; font-size: 1.1rem; color: var(--text-dark); font-weight: 900;">QUANTAS COTAS?</h3>
+            <div class="qty-selector">
+                <button class="qty-btn" onclick="mudarQtd(-1)"><i class="fa-solid fa-minus"></i></button>
+                <span class="qty-display" id="qtd-cotas">1</span>
+                <button class="qty-btn" onclick="mudarQtd(1)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <p style="color: var(--text-light); font-size: 0.95rem; font-family: 'Roboto';">Você receberá <strong id="qtd-numeros" style="color: var(--primary-dark);">2</strong> bilhetes gerados.</p>
         </div>
 
-        <div class="checkout-panel" style="flex: 1; min-width: 300px; max-width: 500px; height: fit-content;">
-            <h3 style="color: var(--primary); margin-bottom: 1rem;">Finalizar Compra</h3>
-            <h2 id="valor-total" style="color: var(--secondary); margin: 1rem 0;">Total: R$ 0,00</h2>
+        <div class="card" style="flex: 1; min-width: 300px; max-width: 450px;">
+            <h3 class="card-title"><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pagamento</h3>
+            <div class="price-box" style="width: 100%; font-size: 1.8rem; border-style: solid; margin-top: 10px;" id="valor-total">
+                R$ 0,00
+            </div>
             
             <div id="alert-box"></div>
 
             <form id="form-compra">
                 <div class="form-group">
                     <label>Seu Nome Completo</label>
-                    <input type="text" id="nome" class="form-control" required>
+                    <input type="text" id="nome" class="form-control" placeholder="João da Silva" required>
                 </div>
                 <div class="form-group">
-                    <label>WhatsApp (com DDD)</label>
-                    <input type="text" id="telefone" class="form-control" placeholder="11999999999" required>
+                    <label>Seu WhatsApp</label>
+                    <input type="text" id="telefone" class="form-control" placeholder="(11) 99999-9999" required>
                 </div>
-                <button type="submit" class="btn" id="btn-finalizar">Finalizar Compra</button>
+                
+                <button type="submit" class="btn-primary" id="btn-finalizar" style="margin-top: 20px;"><i class="fa-solid fa-qrcode"></i> GERAR PIX</button>
             </form>
             
-            <div id="sucesso-panel" style="display: none; text-align: center;">
-                <h3 style="color: var(--secondary); margin-bottom: 10px;">Compra Aprovada! 🎉</h3>
-                <p>Aqui estão os seus números da sorte:</p>
+            <div id="sucesso-panel" style="display: none;">
+                <h3 style="color: var(--primary-dark); font-weight: 900; font-size: 1.5rem;"><i class="fa-solid fa-circle-check"></i> SUCESSO!</h3>
+                <p style="color: var(--text-light); font-family: 'Roboto'; margin-top: 10px;">Aqui estão os seus números da sorte:</p>
                 <div class="meus-numeros-box" id="numeros-gerados"></div>
-                <a href="/compras.html" class="btn" style="margin-top: 20px;">Ver no meu Histórico</a>
+                <a href="/compras.html" class="btn-primary" style="margin-top: 20px; background: #1e293b; color: white;"><i class="fa-solid fa-list"></i> VER HISTÓRICO</a>
             </div>
         </div>
     </main>

@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('rifa-title').innerText = rifaData.titulo;
         document.getElementById('rifa-desc').innerText = `Prêmio: ${rifaData.premio} | R$ ${rifaData.valorNumero.toFixed(2)} / cota`;
+        document.getElementById('rifa-data-sorteio').innerText = `Data do sorteio: ${rifaData.dataSorteioPrevista ? new Date(rifaData.dataSorteioPrevista).toLocaleString('pt-BR') : 'Em breve'}`;
 
         const itemDesc = document.getElementById('rifa-item-desc');
         itemDesc.innerText = rifaData.descricao || '';

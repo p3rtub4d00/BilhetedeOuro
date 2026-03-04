@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// Função auxiliar para gerar IDs únicos aleatórios
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 // Listar Rifas Ativas
@@ -13,7 +12,7 @@ router.get('/rifas', (req, res) => {
     res.json(rifas);
 });
 
-// Detalhes da Rifa e Números Vendidos
+// Detalhes da Rifa e Quantidade Vendida
 router.get('/rifas/:id', (req, res) => {
     const db = req.app.locals.db;
     const rifa = db.rifas.find(r => r._id === req.params.id);
@@ -21,50 +20,70 @@ router.get('/rifas/:id', (req, res) => {
     if (!rifa) return res.status(404).json({ error: 'Rifa não encontrada' });
 
     const compras = db.compras.filter(c => c.rifaId === rifa._id && ['aprovado', 'pendente'].includes(c.statusPagamento));
-    let numerosOcupados = [];
+    let totalNumerosVendidos = 0;
     compras.forEach(compra => {
-        numerosOcupados = numerosOcupados.concat(compra.numeros);
+        totalNumerosVendidos += compra.numeros.length;
     });
 
-    res.json({ rifa, numerosOcupados });
+    res.json({ rifa, totalNumerosVendidos });
 });
 
-// Comprar Números
+// Comprar Cotas (Gera 2 números por cota)
 router.post('/comprar', (req, res) => {
     const db = req.app.locals.db;
-    const { rifaId, telefone, nome, numeros } = req.body;
+    const { rifaId, telefone, nome, quantidade } = req.body;
     
     const rifa = db.rifas.find(r => r._id === rifaId);
     if (!rifa || rifa.status !== 'ativa') return res.status(400).json({ error: 'Rifa indisponível' });
 
-    // Verificar duplicidade
-    const comprasExistentes = db.compras.filter(c => c.rifaId === rifaId && ['aprovado', 'pendente'].includes(c.statusPagamento));
+    if (quantidade < 1) return res.status(400).json({ error: 'Quantidade inválida' });
+
+    // Pega todos os números já gerados para esta rifa
+    const comprasExistentes = db.compras.filter(c => c.rifaId === rifaId);
     const numerosComprados = comprasExistentes.flatMap(c => c.numeros);
-    const duplicados = numeros.filter(n => numerosComprados.includes(n));
     
-    if (duplicados.length > 0) {
-        return res.status(400).json({ error: 'Alguns números já foram comprados', duplicados });
+    // Regra: 2 números de 4 dígitos (0000 a 9999) por cota
+    const totalNumerosParaGerar = quantidade * 2;
+    const novosNumeros = [];
+
+    // Proteção para não entrar em loop infinito se acabarem os números (10.000 max)
+    if (numerosComprados.length + totalNumerosParaGerar > 10000) {
+        return res.status(400).json({ error: 'Não há cotas suficientes disponíveis nesta rifa.' });
     }
 
-    const valorTotal = numeros.length * rifa.valorNumero;
+    // Gera números aleatórios que ainda não saíram
+    while (novosNumeros.length < totalNumerosParaGerar) {
+        let rand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        if (!numerosComprados.includes(rand) && !novosNumeros.includes(rand)) {
+            novosNumeros.push(rand);
+        }
+    }
+
+    const valorTotal = quantidade * rifa.valorNumero;
     const novaCompra = {
         _id: generateId(),
         rifaId,
         telefone,
         nome,
-        numeros,
+        quantidade,
+        numeros: novosNumeros,
         valorTotal,
-        statusPagamento: 'aprovado', // Já aprova direto para facilitar o teste local
+        statusPagamento: 'aprovado', // Modo de teste, aprova direto
         criadoEm: new Date().getTime()
     };
     
     db.compras.push(novaCompra);
 
-    // Emitir socket
+    // Emitir socket para atualizar contadores na tela de outras pessoas
     const io = req.app.get('io');
-    io.to(`rifa_${rifaId}`).emit('numerosComprados', numeros);
+    io.to(`rifa_${rifaId}`).emit('atualizarVendidos', totalNumerosParaGerar);
 
-    res.json({ success: true, compraId: novaCompra._id, mensagem: 'Compra aprovada com sucesso (Modo Teste).' });
+    res.json({ 
+        success: true, 
+        compraId: novaCompra._id, 
+        numerosGerados: novosNumeros,
+        mensagem: 'Compra aprovada com sucesso.' 
+    });
 });
 
 // Consultar Minhas Compras por telefone
@@ -73,7 +92,6 @@ router.get('/minhas-compras/:telefone', (req, res) => {
     const compras = db.compras
         .filter(c => c.telefone === req.params.telefone)
         .map(c => {
-            // Popula os dados da rifa na compra
             const rifa = db.rifas.find(r => r._id === c.rifaId);
             return { ...c, rifaId: rifa || { titulo: 'Rifa Excluída' } };
         });

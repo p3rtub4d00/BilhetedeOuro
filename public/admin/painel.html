@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Bilhete de Ouro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header style="border-bottom: 2px solid #555;">
+        <h1 style="color: #fff;">Painel <span style="color: var(--primary)">Administrativo</span></h1>
+        <nav><button onclick="logout()" class="btn" style="background: #ff5252; color:#fff;">Sair</button></nav>
+    </header>
+
+    <main class="container">
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+            <div class="card" style="flex: 1;">
+                <h3>Total de Rifas</h3>
+                <span class="price" id="stat-rifas">0</span>
+            </div>
+            <div class="card" style="flex: 1;">
+                <h3>Receita (Aprovada)</h3>
+                <span class="price" style="color: var(--secondary)" id="stat-receita">R$ 0,00</span>
+            </div>
+        </div>
+
+        <h2 class="title" style="text-align: left;">Criar Nova Campanha</h2>
+        <div class="card" style="text-align: left; margin-bottom: 2rem;">
+            <form id="form-nova-rifa" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group"><label>Título</label><input type="text" id="n-titulo" class="form-control" required></div>
+                <div class="form-group"><label>Prêmio</label><input type="text" id="n-premio" class="form-control" required></div>
+                <div class="form-group"><label>Valor da Cota (R$)</label><input type="number" step="0.01" id="n-valor" class="form-control" required></div>
+                <div class="form-group"><label>Total de Números</label><input type="number" id="n-total" class="form-control" required></div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <button type="submit" class="btn">Cadastrar Rifa</button>
+                </div>
+            </form>
+        </div>
+
+        <h2 class="title" style="text-align: left;">Campanhas Ativas</h2>
+        <table>
+            <thead><tr><th>Rifa</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody id="lista-rifas-admin"></tbody>
+        </table>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script src="/admin/js/admin.js"></script>
+</body>
+</html>

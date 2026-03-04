@@ -1,7 +1,8 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 
-const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateId = () => crypto.randomUUID();
 
 const authMiddleware = (req, res, next) => {
     if (req.session && req.session.isAdmin) return next();

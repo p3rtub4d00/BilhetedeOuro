@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprar Bilhetes - Bilhete de Ouro</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="/socket.io/socket.io.js"></script>
@@ -18,8 +17,7 @@
             <h2 class="title" id="rifa-title">Carregando...</h2>
             <p id="rifa-desc" style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;"></p>
             
-            <div class="numeros-grid" id="grid">
-                </div>
+            <div class="numeros-grid" id="grid"></div>
         </div>
 
         <div class="checkout-panel" style="flex: 1; min-width: 300px; height: fit-content;">
@@ -38,7 +36,7 @@
                     <label>WhatsApp (com DDD)</label>
                     <input type="text" id="telefone" class="form-control" placeholder="11999999999" required>
                 </div>
-                <button type="submit" class="btn" id="btn-finalizar">Finalizar via PIX</button>
+                <button type="submit" class="btn" id="btn-finalizar">Finalizar Compra</button>
             </form>
         </div>
     </main>

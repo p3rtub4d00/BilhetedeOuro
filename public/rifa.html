@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -70,7 +71,7 @@
                 <p style="color: var(--text-light); font-family: 'Roboto'; margin-top: 10px;">Aqui estão os seus números da sorte:</p>
                 <div class="meus-numeros-box" id="numeros-gerados"></div>
                 <div id="comprovante-info" style="margin-top: 10px; text-align: left;"></div>
-                <button id="btn-comprovante" class="btn-primary" style="display:none; margin-top: 12px;"><i class="fa-solid fa-file-arrow-down"></i> BAIXAR COMPROVANTE</button>
+                <button id="btn-comprovante" class="btn-primary" style="display:none; margin-top: 12px;"><i class="fa-solid fa-file-pdf"></i> BAIXAR COMPROVANTE PDF</button>
                 <a href="/compras.html" class="btn-primary" style="margin-top: 20px; background: #1e293b; color: white;"><i class="fa-solid fa-list"></i> VER HISTÓRICO</a>
             </div>
         </div>

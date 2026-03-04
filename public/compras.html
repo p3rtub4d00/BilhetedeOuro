@@ -12,13 +12,13 @@
     </header>
 
     <main class="container">
-        <h2 class="title">Buscar Minhas Cotas</h2>
+        <h2 class="title">Buscar Meus Números</h2>
         <div style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
             <input type="text" id="tel-busca" class="form-control" placeholder="Digite seu WhatsApp">
             <button onclick="buscarCompras()" class="btn" style="margin-top: 10px;">Buscar</button>
         </div>
 
-        <div id="resultado-busca"></div>
+        <div id="resultado-busca" style="display: flex; flex-direction: column; gap: 15px;"></div>
     </main>
 
     <script src="/js/main.js"></script>
@@ -33,11 +33,17 @@
                 if(compras.length === 0) html = '<p style="text-align:center;">Nenhuma compra encontrada.</p>';
                 
                 compras.forEach(c => {
+                    // Formata os números em tags visuais
+                    const tagsHTML = c.numeros.map(n => `<span class="num-tag">${n}</span>`).join('');
+
                     html += `
-                        <div class="card" style="margin-bottom: 1rem; text-align: left;">
+                        <div class="card" style="text-align: left;">
                             <h3 style="color: var(--primary)">${c.rifaId.titulo}</h3>
-                            <p><strong>Status:</strong> ${c.statusPagamento.toUpperCase()}</p>
-                            <p><strong>Números:</strong> <span style="color: var(--secondary); font-weight:bold;">${c.numeros.join(', ')}</span></p>
+                            <p><strong>Cotas:</strong> ${c.quantidade} | <strong>Status:</strong> <span style="color:var(--secondary)">${c.statusPagamento.toUpperCase()}</span></p>
+                            <p style="margin-top: 10px;"><strong>Seus Números:</strong></p>
+                            <div class="meus-numeros-box" style="margin-top: 5px;">
+                                ${tagsHTML}
+                            </div>
                         </div>
                     `;
                 });

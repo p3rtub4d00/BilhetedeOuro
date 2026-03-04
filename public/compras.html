@@ -2,54 +2,66 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Minhas Compras - Bilhete de Ouro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minhas Cotas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>🎫 Bilhete de Ouro</h1>
-        <nav><a href="/">Início</a></nav>
+
+    <header class="hero-header" style="padding-bottom: 50px;">
+        <div class="top-bar">
+            <a href="/" class="logo-area"><i class="fa-solid fa-ticket-simple"></i> BILHETE<span class="highlight">OURO</span></a>
+            <a href="/" class="btn-nav-outline"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+        </div>
+        <h1 class="main-title" style="color: white; font-size: 1.8rem;">MEUS BILHETES</h1>
     </header>
 
     <main class="container">
-        <h2 class="title">Buscar Meus Números</h2>
-        <div style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
-            <input type="text" id="tel-busca" class="form-control" placeholder="Digite seu WhatsApp">
-            <button onclick="buscarCompras()" class="btn" style="margin-top: 10px;">Buscar</button>
+        <div class="card" style="max-width: 450px; margin: 0 auto 30px;">
+            <div class="form-group">
+                <label style="text-align: center; font-size: 1rem;">Digite o WhatsApp da compra</label>
+                <input type="text" id="tel-busca" class="form-control" placeholder="(11) 99999-9999" style="text-align: center; font-size: 1.2rem; font-weight: bold;">
+            </div>
+            <button onclick="buscarCompras()" class="btn-primary"><i class="fa-solid fa-magnifying-glass"></i> BUSCAR</button>
         </div>
 
-        <div id="resultado-busca" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        <div id="resultado-busca" style="display: flex; flex-direction: column; gap: 20px; max-width: 700px; margin: 0 auto;"></div>
     </main>
 
     <script src="/js/main.js"></script>
     <script>
         async function buscarCompras() {
             const tel = document.getElementById('tel-busca').value;
-            if(!tel) return alert('Digite o telefone');
+            const resultBox = document.getElementById('resultado-busca');
+            if(!tel) return;
 
             try {
                 const compras = await fetchAPI(`/api/minhas-compras/${tel}`);
                 let html = '';
-                if(compras.length === 0) html = '<p style="text-align:center;">Nenhuma compra encontrada.</p>';
-                
-                compras.forEach(c => {
-                    // Formata os números em tags visuais
-                    const tagsHTML = c.numeros.map(n => `<span class="num-tag">${n}</span>`).join('');
-
-                    html += `
-                        <div class="card" style="text-align: left;">
-                            <h3 style="color: var(--primary)">${c.rifaId.titulo}</h3>
-                            <p><strong>Cotas:</strong> ${c.quantidade} | <strong>Status:</strong> <span style="color:var(--secondary)">${c.statusPagamento.toUpperCase()}</span></p>
-                            <p style="margin-top: 10px;"><strong>Seus Números:</strong></p>
-                            <div class="meus-numeros-box" style="margin-top: 5px;">
-                                ${tagsHTML}
+                if(compras.length === 0) {
+                    html = '<div class="card"><p style="color: var(--text-light);">Nenhuma cota encontrada.</p></div>';
+                } else {
+                    compras.forEach(c => {
+                        const tagsHTML = c.numeros.map(n => `<span class="num-tag">${n}</span>`).join('');
+                        html += `
+                            <div class="card" style="text-align: left;">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; margin-bottom: 15px;">
+                                    <h3 class="card-title" style="margin: 0; font-size: 1rem;">${c.rifaId.titulo}</h3>
+                                    <span style="background: #00C853; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 900;">PAGO</span>
+                                </div>
+                                <p style="font-family: 'Roboto'; font-size: 0.9rem;"><strong>Qtd. Cotas:</strong> ${c.quantidade}</p>
+                                <div class="meus-numeros-box" style="margin-top: 15px;">
+                                    ${tagsHTML}
+                                </div>
                             </div>
-                        </div>
-                    `;
-                });
-                document.getElementById('resultado-busca').innerHTML = html;
+                        `;
+                    });
+                }
+                resultBox.innerHTML = html;
             } catch (error) {
-                alert('Erro ao buscar.');
+                resultBox.innerHTML = '<div class="alert alert-error">Erro ao buscar dados.</div>';
             }
         }
     </script>

@@ -1,126 +1,167 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* =========================================
+   CONFIGURAÇÕES GERAIS E VARIÁVEIS (Estilo Pix do Bingo)
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;700&display=swap');
 
 :root {
-    /* Paleta Premium */
-    --bg-main: #0F172A; /* Azul escuro profundo */
-    --bg-card: #1E293B; /* Azul ardósia para os cards */
-    --gold-light: #FDE68A;
-    --gold-primary: #D97706;
-    --gold-gradient: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
-    --success: #10B981; /* Verde esmeralda para aprovações */
-    --text-main: #F8FAFC;
-    --text-muted: #94A3B8;
-    --border-color: #334155;
+    --primary-color: #00C853;       /* Verde Pix Vibrante */
+    --primary-dark: #009624;
+    --secondary-color: #2962FF;     /* Azul Institucional */
+    --accent-gold: #FFD600;         /* Dourado Prêmios */
+    --bg-color: #f0f2f5;            /* Fundo Site */
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --white: #ffffff;
+    --radius: 16px;                 /* Arredondamento Padrão */
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
-body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; }
-
-/* Cabeçalho Profissional */
-header { 
-    background-color: rgba(15, 23, 42, 0.95); 
-    padding: 1rem 5%; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    padding-bottom: 40px; 
 }
-header .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-header .logo h1 { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
-header nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-header nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.3s; font-size: 0.95rem; }
-header nav a:hover { color: var(--text-main); }
 
-.btn-bingo-nav { background: var(--border-color); color: var(--text-main); padding: 8px 16px; border-radius: 6px; font-weight: 600; text-decoration: none; transition: 0.3s; border: 1px solid #475569; }
-.btn-bingo-nav:hover { background: #475569; }
-
-/* Containers e Títulos */
-.container { max-width: 1100px; margin: 3rem auto; padding: 0 1.5rem; }
-.section-title { text-align: center; margin-bottom: 2.5rem; }
-.section-title h2 { color: var(--text-main); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-.section-title p { color: var(--text-muted); font-size: 1rem; }
-
-/* Grid de Rifas */
-.grid-rifas { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
-
-/* Cards Premium */
-.card { 
-    background: var(--bg-card); 
-    border: 1px solid var(--border-color); 
-    border-radius: 12px; 
-    padding: 2rem; 
-    text-align: center; 
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+/* =========================================
+   CABEÇALHO HERO (Curvo escuro do topo)
+   ========================================= */
+.hero-header {
+    background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+    color: white;
+    padding: 20px 20px 70px 20px;
+    text-align: center;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    margin-bottom: -40px; /* Faz o conteúdo subir por cima */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
 }
-.card:hover { transform: translateY(-5px); border-color: #64748B; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
-.card h3 { color: var(--text-main); font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 600; }
-.card .premio-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; min-height: 45px; }
-.card .price-tag { display: inline-block; background: rgba(245, 158, 11, 0.1); color: var(--gold-light); padding: 5px 15px; border-radius: 20px; font-weight: 700; font-size: 1.1rem; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 1.5rem; }
 
-/* Botão Principal Dourado */
-.btn-primary { 
-    display: block; 
-    width: 100%; 
-    background: var(--gold-gradient); 
-    color: #000; 
-    padding: 14px 20px; 
-    text-decoration: none; 
-    border-radius: 8px; 
-    font-weight: 700; 
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+}
+
+.logo-area { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; color: white; text-decoration: none; }
+.highlight { color: var(--accent-gold); }
+
+.btn-nav-outline {
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: 0.3s;
+}
+.btn-nav-outline:hover { background: rgba(255,255,255,0.1); }
+
+.hero-content { margin-top: 10px; }
+.main-title { font-size: 2.2rem; margin-bottom: 5px; font-weight: 900; letter-spacing: -1px; line-height: 1; color: var(--primary-color); }
+.subtitle { font-size: 0.9rem; color: #94a3b8; font-family: 'Roboto', sans-serif; font-weight: 400; }
+
+/* =========================================
+   CONTAINER E CARDS 
+   ========================================= */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 15px;
+    position: relative;
+    z-index: 10;
+}
+
+.grid-rifas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+
+.card-title { font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px; text-transform: uppercase; }
+.card-desc { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; font-family: 'Roboto', sans-serif;}
+
+.price-box {
+    background: #f0fdf4;
+    color: var(--primary-dark);
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 1.3rem;
+    border: 1px dashed var(--primary-color);
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+/* =========================================
+   BOTÕES E FORMULÁRIOS
+   ========================================= */
+.btn-primary {
+    display: block;
+    width: 100%;
+    background: linear-gradient(45deg, var(--primary-color), #00E676);
+    color: #003300;
+    padding: 14px 20px;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 900;
     font-size: 1rem;
-    cursor: pointer; 
-    border: none; 
-    transition: opacity 0.3s, transform 0.2s; 
-    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
+    text-transform: uppercase;
 }
-.btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
-.btn-primary:disabled { background: var(--border-color); color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { background: #cbd5e1; color: #64748b; box-shadow: none; cursor: not-allowed; }
 
-/* Formulários */
-.form-group { margin-bottom: 1.2rem; text-align: left; }
-.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;}
-.form-control { 
-    width: 100%; 
-    padding: 12px 15px; 
-    background: var(--bg-main); 
-    border: 1px solid var(--border-color); 
-    color: var(--text-main); 
-    border-radius: 8px; 
+.form-group { margin-bottom: 15px; text-align: left; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--text-dark); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+.form-control {
+    width: 100%;
+    padding: 14px 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: var(--text-dark);
+    border-radius: 12px;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    font-family: 'Roboto', sans-serif;
+    transition: 0.3s;
 }
-.form-control:focus { outline: none; border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
+.form-control:focus { outline: none; border-color: var(--primary-color); background: var(--white); box-shadow: 0 0 0 3px rgba(0,200,83,0.2); }
 
-/* Seleção de Quantidade */
-.qty-selector { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin: 2rem 0; background: var(--bg-main); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-.qty-btn { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); width: 45px; height: 45px; font-size: 1.5rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.qty-btn:hover { background: var(--border-color); }
-.qty-display { font-size: 2.2rem; font-weight: 700; color: var(--gold-light); width: 60px; text-align: center; }
+/* =========================================
+   COMPONENTES EXCLUSIVOS DA RIFA
+   ========================================= */
+.qty-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+.qty-btn { background: var(--white); color: var(--primary-color); border: 2px solid var(--primary-color); width: 45px; height: 45px; font-size: 1.5rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; transition: 0.2s; }
+.qty-btn:hover { background: var(--primary-color); color: white; }
+.qty-display { font-size: 2rem; font-weight: 900; color: var(--text-dark); width: 60px; text-align: center; }
 
-/* Box de Informações Extras (Confiança) */
-.info-box { background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0; display: flex; align-items: center; gap: 15px; text-align: left; }
-.info-box.neutral { background: var(--bg-main); border-color: var(--border-color); }
-.info-icon { font-size: 1.5rem; }
+.info-box { background: #fffbeb; border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 15px; margin: 15px 0; display: flex; align-items: center; gap: 15px; text-align: left; }
+.info-icon { font-size: 1.5rem; color: #d97706; }
 
-/* Exibição dos Números */
-.meus-numeros-box { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; background: var(--bg-main); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
-.num-tag { background: var(--bg-card); color: var(--gold-light); padding: 8px 12px; border-radius: 6px; font-weight: 600; font-family: 'Courier New', monospace; font-size: 1.2rem; border: 1px solid #475569; letter-spacing: 2px;}
+.meus-numeros-box { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+.num-tag { background: var(--accent-gold); color: #000; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-family: 'Roboto', monospace; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); letter-spacing: 1px;}
 
-/* Tabelas e Alertas */
-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: var(--bg-card); border-radius: 8px; overflow: hidden; }
-th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-th { background: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; }
+.alert { padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; font-weight: 700; font-size: 0.9rem; }
+.alert-error { background: #fef2f2; color: #dc2626; border: 1px dashed #f87171; }
 
-.alert { padding: 15px; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-weight: 500; }
-.alert-error { background: rgba(239, 68, 68, 0.1); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.2); }
-
-/* Rodapé de Confiança */
-footer { text-align: center; padding: 3rem 1rem; margin-top: 4rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; }
-.trust-badges { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.badge { display: flex; align-items: center; gap: 8px; }
+footer { text-align: center; padding: 30px 15px; margin-top: 40px; color: var(--text-light); font-size: 0.85rem; font-family: 'Roboto', sans-serif;}

@@ -5,8 +5,17 @@ async function fetchAPI(endpoint, options = {}) {
             headers: { 'Content-Type': 'application/json' },
             ...options
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Erro na requisição');
+
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const data = isJson ? await response.json() : null;
+
+        if (!response.ok) {
+            if (data && data.error) throw new Error(data.error);
+            if (response.status === 413) throw new Error('Imagem muito grande para envio. Tente uma foto menor (até ~2MB).');
+            throw new Error('Erro na requisição');
+        }
+
         return data;
     } catch (error) {
         console.error(error);

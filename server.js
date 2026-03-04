@@ -17,7 +17,10 @@ const PORT = process.env.PORT || 3000;
 // BANCO DE DADOS EM MEMÓRIA (Para testes)
 const db = {
     rifas: [],
-    compras: []
+    compras: [],
+    auditLogs: [],
+    otpByPhone: new Map(),
+    tokensConsulta: new Map()
 };
 app.locals.db = db; // Disponibiliza o db para as rotas
 

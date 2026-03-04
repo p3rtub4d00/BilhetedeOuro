@@ -26,9 +26,9 @@ async function carregarRifasAdmin() {
     rifas.forEach(r => {
         let acao = '';
         if(r.status === 'ativa') {
-            acao = `<button onclick="sortear('${r._id}')" class="btn" style="background:var(--secondary); padding:5px 10px;">Encerrar e Sortear</button>`;
+            acao = `<button onclick="sortear('${r._id}')" class="btn" style="background:var(--secondary); padding:5px 10px;">Sortear Agora</button>`;
         } else if (r.status === 'sorteada') {
-            acao = `<span style="color:var(--primary)">Vencedor: ${r.numeroSorteado}</span>`;
+            acao = `<span style="color:var(--primary)">Sorteado: ${r.numeroSorteado}</span>`;
         }
 
         tbody.innerHTML += `
@@ -52,8 +52,9 @@ document.getElementById('form-nova-rifa').addEventListener('submit', async (e) =
 
     try {
         await fetchAPI('/admin-api/rifas', { method: 'POST', body: JSON.stringify(data) });
-        alert('Rifa criada com sucesso!');
+        alert('Rifa criada!');
         e.target.reset();
+        carregarStats();
         carregarRifasAdmin();
     } catch (err) {
         alert('Erro ao criar: ' + err.message);
@@ -61,7 +62,7 @@ document.getElementById('form-nova-rifa').addEventListener('submit', async (e) =
 });
 
 async function sortear(id) {
-    if(!confirm('Atenção: Isso encerrará a rifa e sorteará um número pago. Continuar?')) return;
+    if(!confirm('Isso vai sortear um número PAGO e encerrar a rifa. Continuar?')) return;
     try {
         const res = await fetchAPI(`/admin-api/rifas/${id}/sortear`, { method: 'POST' });
         alert(`Sorteio realizado! Ganhador: Bilhete ${res.rifa.numeroSorteado}\nInfo: ${res.rifa.vencedorInfo}`);

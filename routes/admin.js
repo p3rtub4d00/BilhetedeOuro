@@ -33,9 +33,34 @@ router.get('/stats', authMiddleware, (req, res) => {
 
 router.post('/rifas', authMiddleware, (req, res) => {
     const db = req.app.locals.db;
+    const { titulo, premio, valorNumero, descricao, imagemBase64 } = req.body;
+
+    if (!titulo || !premio || !valorNumero) {
+        return res.status(400).json({ error: 'Título, prêmio e valor da cota são obrigatórios.' });
+    }
+
+    if (descricao && descricao.length > 500) {
+        return res.status(400).json({ error: 'A descrição deve ter no máximo 500 caracteres.' });
+    }
+
+    if (imagemBase64) {
+        const isImagemDataUrl = /^data:image\/[a-zA-Z+]+;base64,/.test(imagemBase64);
+        if (!isImagemDataUrl) {
+            return res.status(400).json({ error: 'Formato de imagem inválido.' });
+        }
+
+        if (imagemBase64.length > 3 * 1024 * 1024) {
+            return res.status(400).json({ error: 'A imagem é muito grande. Use até 2MB.' });
+        }
+    }
+
     const novaRifa = {
         _id: generateId(),
-        ...req.body,
+        titulo,
+        premio,
+        valorNumero,
+        descricao: descricao || '',
+        imagemBase64: imagemBase64 || '',
         status: 'ativa',
         numeroSorteado: null,
         resultadoLoteria: null,

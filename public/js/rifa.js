@@ -24,10 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Erro ao carregar rifa.');
     }
 
-    // Ouvintes de Socket
     socket.on('numerosComprados', (numeros) => {
         numerosOcupados = [...numerosOcupados, ...numeros];
-        // Remove das seleções atuais se alguém comprou antes
         numerosSelecionados = numerosSelecionados.filter(n => !numerosOcupados.includes(n));
         renderizarGrid();
         atualizarCheckout();
@@ -38,8 +36,6 @@ function renderizarGrid() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
     
-    // Renderizando até 2000 números para performance no frontend puro. 
-    // Em produção com 100k, recomenda-se paginação ou compra por quantidade aleatória.
     const limiteUI = Math.min(rifaData.totalNumeros, 2000); 
 
     for(let i = 1; i <= limiteUI; i++) {
@@ -98,16 +94,15 @@ document.getElementById('form-compra').addEventListener('submit', async (e) => {
             body: JSON.stringify({ rifaId, nome, telefone, numeros: numerosSelecionados })
         });
         
-        // Simulação de PIX
         document.querySelector('.checkout-panel').innerHTML = `
-            <h3 style="color: var(--secondary)">Reserva Concluída!</h3>
-            <p>Sua reserva foi feita. No sistema real, o QRCcode do PIX apareceria aqui.</p>
-            <p style="margin-top:10px; font-weight:bold;">ID do Pedido: ${res.compraId}</p>
+            <h3 style="color: var(--secondary)">Compra Aprovada! (Teste)</h3>
+            <p>Seus números foram garantidos com sucesso.</p>
+            <p style="margin-top:10px; font-weight:bold;">ID: ${res.compraId}</p>
             <a href="/compras.html" class="btn" style="margin-top: 15px;">Ver Minhas Compras</a>
         `;
     } catch (error) {
         showAlert('alert-box', error.message);
-        btn.innerText = 'Finalizar via PIX';
+        btn.innerText = 'Finalizar Compra';
         btn.disabled = false;
     }
 });

@@ -1,85 +1,92 @@
 const express = require('express');
 const router = express.Router();
-const Rifa = require('../models/Rifa');
-const Compra = require('../models/Compra');
+
+// Função auxiliar para gerar IDs únicos aleatórios
+const generateId = () => Math.random().toString(36).substr(2, 9);
 
 // Listar Rifas Ativas
-router.get('/rifas', async (req, res) => {
-    try {
-        const rifas = await Rifa.find({ status: { $in: ['ativa', 'encerrada', 'sorteada'] } }).sort({ criadoEm: -1 });
-        res.json(rifas);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar rifas' });
-    }
+router.get('/rifas', (req, res) => {
+    const db = req.app.locals.db;
+    const rifas = db.rifas
+        .filter(r => ['ativa', 'encerrada', 'sorteada'].includes(r.status))
+        .sort((a, b) => b.criadoEm - a.criadoEm);
+    res.json(rifas);
 });
 
 // Detalhes da Rifa e Números Vendidos
-router.get('/rifas/:id', async (req, res) => {
-    try {
-        const rifa = await Rifa.findById(req.params.id);
-        if (!rifa) return res.status(404).json({ error: 'Rifa não encontrada' });
+router.get('/rifas/:id', (req, res) => {
+    const db = req.app.locals.db;
+    const rifa = db.rifas.find(r => r._id === req.params.id);
+    
+    if (!rifa) return res.status(404).json({ error: 'Rifa não encontrada' });
 
-        const compras = await Compra.find({ rifaId: rifa._id, statusPagamento: { $in: ['aprovado', 'pendente'] } });
-        let numerosOcupados = [];
-        compras.forEach(compra => {
-            numerosOcupados = numerosOcupados.concat(compra.numeros);
-        });
+    const compras = db.compras.filter(c => c.rifaId === rifa._id && ['aprovado', 'pendente'].includes(c.statusPagamento));
+    let numerosOcupados = [];
+    compras.forEach(compra => {
+        numerosOcupados = numerosOcupados.concat(compra.numeros);
+    });
 
-        res.json({ rifa, numerosOcupados });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar detalhes' });
-    }
+    res.json({ rifa, numerosOcupados });
 });
 
 // Comprar Números
-router.post('/comprar', async (req, res) => {
+router.post('/comprar', (req, res) => {
+    const db = req.app.locals.db;
     const { rifaId, telefone, nome, numeros } = req.body;
-    try {
-        const rifa = await Rifa.findById(rifaId);
-        if (!rifa || rifa.status !== 'ativa') return res.status(400).json({ error: 'Rifa indisponível' });
+    
+    const rifa = db.rifas.find(r => r._id === rifaId);
+    if (!rifa || rifa.status !== 'ativa') return res.status(400).json({ error: 'Rifa indisponível' });
 
-        // Verificar duplicidade
-        const comprasExistentes = await Compra.find({ rifaId, statusPagamento: { $in: ['aprovado', 'pendente'] } });
-        const numerosComprados = comprasExistentes.flatMap(c => c.numeros);
-        const duplicados = numeros.filter(n => numerosComprados.includes(n));
-        
-        if (duplicados.length > 0) {
-            return res.status(400).json({ error: 'Alguns números já foram comprados', duplicados });
-        }
-
-        const valorTotal = numeros.length * rifa.valorNumero;
-        const novaCompra = new Compra({ rifaId, telefone, nome, numeros, valorTotal });
-        await novaCompra.save();
-
-        // Emitir socket
-        const io = req.app.get('io');
-        io.to(`rifa_${rifaId}`).emit('numerosComprados', numeros);
-
-        // Aqui entraria a integração da API do PIX, retornando copia e cola / qrcode
-        res.json({ success: true, compraId: novaCompra._id, mensagem: 'Reserva feita! Aguardando PIX (Simulado).' });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao processar compra' });
+    // Verificar duplicidade
+    const comprasExistentes = db.compras.filter(c => c.rifaId === rifaId && ['aprovado', 'pendente'].includes(c.statusPagamento));
+    const numerosComprados = comprasExistentes.flatMap(c => c.numeros);
+    const duplicados = numeros.filter(n => numerosComprados.includes(n));
+    
+    if (duplicados.length > 0) {
+        return res.status(400).json({ error: 'Alguns números já foram comprados', duplicados });
     }
+
+    const valorTotal = numeros.length * rifa.valorNumero;
+    const novaCompra = {
+        _id: generateId(),
+        rifaId,
+        telefone,
+        nome,
+        numeros,
+        valorTotal,
+        statusPagamento: 'aprovado', // Já aprova direto para facilitar o teste local
+        criadoEm: new Date().getTime()
+    };
+    
+    db.compras.push(novaCompra);
+
+    // Emitir socket
+    const io = req.app.get('io');
+    io.to(`rifa_${rifaId}`).emit('numerosComprados', numeros);
+
+    res.json({ success: true, compraId: novaCompra._id, mensagem: 'Compra aprovada com sucesso (Modo Teste).' });
 });
 
 // Consultar Minhas Compras por telefone
-router.get('/minhas-compras/:telefone', async (req, res) => {
-    try {
-        const compras = await Compra.find({ telefone: req.params.telefone }).populate('rifaId');
-        res.json(compras);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar compras' });
-    }
+router.get('/minhas-compras/:telefone', (req, res) => {
+    const db = req.app.locals.db;
+    const compras = db.compras
+        .filter(c => c.telefone === req.params.telefone)
+        .map(c => {
+            // Popula os dados da rifa na compra
+            const rifa = db.rifas.find(r => r._id === c.rifaId);
+            return { ...c, rifaId: rifa || { titulo: 'Rifa Excluída' } };
+        });
+    res.json(compras);
 });
 
 // Resultados / Ganhadores
-router.get('/resultados', async (req, res) => {
-    try {
-        const rifasSorteadas = await Rifa.find({ status: 'sorteada' }).sort({ dataSorteio: -1 });
-        res.json(rifasSorteadas);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar resultados' });
-    }
+router.get('/resultados', (req, res) => {
+    const db = req.app.locals.db;
+    const rifasSorteadas = db.rifas
+        .filter(r => r.status === 'sorteada')
+        .sort((a, b) => b.dataSorteio - a.dataSorteio);
+    res.json(rifasSorteadas);
 });
 
 module.exports = router;

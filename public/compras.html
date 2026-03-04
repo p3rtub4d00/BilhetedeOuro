@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Compras - Bilhete de Ouro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎫 Bilhete de Ouro</h1>
+        <nav><a href="/">Início</a></nav>
+    </header>
+
+    <main class="container">
+        <h2 class="title">Buscar Minhas Cotas</h2>
+        <div style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
+            <input type="text" id="tel-busca" class="form-control" placeholder="Digite seu WhatsApp com DDD">
+            <button onclick="buscarCompras()" class="btn" style="margin-top: 10px;">Buscar</button>
+        </div>
+
+        <div id="resultado-busca"></div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        async function buscarCompras() {
+            const tel = document.getElementById('tel-busca').value;
+            if(!tel) return alert('Digite o telefone');
+
+            try {
+                const compras = await fetchAPI(`/api/minhas-compras/${tel}`);
+                let html = '';
+                if(compras.length === 0) html = '<p style="text-align:center;">Nenhuma compra encontrada.</p>';
+                
+                compras.forEach(c => {
+                    html += `
+                        <div class="card" style="margin-bottom: 1rem; text-align: left;">
+                            <h3 style="color: var(--primary)">${c.rifaId.titulo}</h3>
+                            <p><strong>Status:</strong> ${c.statusPagamento.toUpperCase()}</p>
+                            <p><strong>Números:</strong> <span style="color: var(--secondary); font-weight:bold;">${c.numeros.join(', ')}</span></p>
+                            <p><strong>Data:</strong> ${new Date(c.criadoEm).toLocaleString()}</p>
+                        </div>
+                    `;
+                });
+                document.getElementById('resultado-busca').innerHTML = html;
+            } catch (error) {
+                alert('Erro ao buscar.');
+            }
+        }
+    </script>
+</body>
+</html>

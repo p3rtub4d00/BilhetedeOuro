@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprar Bilhetes - Bilhete de Ouro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <header>
+        <h1>🎫 Bilhete de Ouro</h1>
+        <nav><a href="/">Voltar ao Início</a></nav>
+    </header>
+
+    <main class="container" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 300px;">
+            <h2 class="title" id="rifa-title">Carregando...</h2>
+            <p id="rifa-desc" style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;"></p>
+            
+            <div class="numeros-grid" id="grid">
+                </div>
+        </div>
+
+        <div class="checkout-panel" style="flex: 1; min-width: 300px; height: fit-content;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;">Seus Números</h3>
+            <p id="numeros-selecionados">Nenhum número selecionado</p>
+            <h2 id="valor-total" style="color: var(--secondary); margin: 1rem 0;">Total: R$ 0,00</h2>
+            
+            <div id="alert-box"></div>
+
+            <form id="form-compra">
+                <div class="form-group">
+                    <label>Seu Nome Completo</label>
+                    <input type="text" id="nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp (com DDD)</label>
+                    <input type="text" id="telefone" class="form-control" placeholder="11999999999" required>
+                </div>
+                <button type="submit" class="btn" id="btn-finalizar">Finalizar via PIX</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/rifa.js"></script>
+</body>
+</html>

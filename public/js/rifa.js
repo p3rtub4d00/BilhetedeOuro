@@ -16,6 +16,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('rifa-title').innerText = rifaData.titulo;
         document.getElementById('rifa-desc').innerText = `Prêmio: ${rifaData.premio} | R$ ${rifaData.valorNumero.toFixed(2)} / cota`;
+
+        const itemDesc = document.getElementById('rifa-item-desc');
+        itemDesc.innerText = rifaData.descricao || '';
+
+        const rifaImage = document.getElementById('rifa-image');
+        if (rifaData.imagemBase64) {
+            rifaImage.src = rifaData.imagemBase64;
+            rifaImage.style.display = 'block';
+        }
         
         atualizarCheckout();
     } catch (error) {

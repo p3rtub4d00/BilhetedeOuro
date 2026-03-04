@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados - Bilhete de Ouro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎫 Bilhete de Ouro</h1>
+        <nav><a href="/">Início</a></nav>
+    </header>
+
+    <main class="container">
+        <h2 class="title">Últimos Ganhadores</h2>
+        <div class="grid-rifas" id="resultados-list"></div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const list = document.getElementById('resultados-list');
+            const rifas = await fetchAPI('/api/resultados');
+            
+            if(rifas.length === 0) return list.innerHTML = '<p>Nenhum sorteio realizado ainda.</p>';
+
+            rifas.forEach(rifa => {
+                list.innerHTML += `
+                    <div class="card" style="border-color: var(--secondary)">
+                        <h3 style="color: var(--secondary)">🏆 ${rifa.titulo}</h3>
+                        <p><strong>Prêmio:</strong> ${rifa.premio}</p>
+                        <hr style="border-color: var(--border); margin: 10px 0;">
+                        <p><strong>Vencedor:</strong> ${rifa.vencedorInfo}</p>
+                        <p><strong>Bilhete Sorteado:</strong> <span style="font-size: 1.5rem; color: var(--primary); display:block;">${rifa.numeroSorteado.toString().padStart(3, '0')}</span></p>
+                        <p style="font-size: 0.8rem; color: #666; margin-top:10px;">Sorteado em: ${new Date(rifa.dataSorteio).toLocaleDateString()}</p>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

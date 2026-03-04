@@ -56,6 +56,10 @@ async function carregarRifasAdmin() {
     const rifas = await fetchAPI('/api/rifas');
     
     rifas.forEach(r => {
+        const dataPrevista = r.dataSorteioPrevista
+            ? new Date(r.dataSorteioPrevista).toLocaleString('pt-BR')
+            : 'Não definida';
+
         let acao = '';
         if(r.status === 'ativa') {
             acao = `<button onclick="abrirSorteioLoteria('${r._id}')" class="btn" style="background:var(--secondary-color); padding:5px 10px;">Informar Loteria Federal</button>`;
@@ -65,7 +69,7 @@ async function carregarRifasAdmin() {
 
         tbody.innerHTML += `
             <tr>
-                <td>${r.titulo}<br><small style="color:#888;">${r.premio}</small></td>
+                <td>${r.titulo}<br><small style="color:#888;">${r.premio}</small><br><small style="color:#64748b;">Sorteio: ${dataPrevista}</small></td>
                 <td>${r.status.toUpperCase()}</td>
                 <td>${acao}</td>
             </tr>
@@ -103,7 +107,8 @@ document.getElementById('form-nova-rifa').addEventListener('submit', async (e) =
             premio: document.getElementById('n-premio').value.trim(),
             descricao: document.getElementById('n-descricao').value.trim(),
             imagemBase64,
-            valorNumero: parseFloat(document.getElementById('n-valor').value)
+            valorNumero: parseFloat(document.getElementById('n-valor').value),
+            dataSorteioPrevista: document.getElementById('n-data-sorteio').value
         };
 
         await fetchAPI('/admin-api/rifas', { method: 'POST', body: JSON.stringify(data) });

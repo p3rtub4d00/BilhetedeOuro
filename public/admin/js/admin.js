@@ -1,11 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
     carregarStats();
     carregarRifasAdmin();
+    configurarPreviewFoto();
 });
 
 async function logout() {
     await fetchAPI('/admin-api/logout', { method: 'POST' });
     window.location.href = '/admin/';
+}
+
+function configurarPreviewFoto() {
+    const inputFoto = document.getElementById('n-foto');
+    const preview = document.getElementById('preview-foto');
+    if (!inputFoto || !preview) return;
+
+    inputFoto.addEventListener('change', () => {
+        const file = inputFoto.files && inputFoto.files[0];
+        if (!file) {
+            preview.style.display = 'none';
+            preview.removeAttribute('src');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function arquivoParaBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Falha ao ler a imagem.'));
+        reader.readAsDataURL(file);
+    });
 }
 
 async function carregarStats() {
@@ -26,9 +58,9 @@ async function carregarRifasAdmin() {
     rifas.forEach(r => {
         let acao = '';
         if(r.status === 'ativa') {
-            acao = `<button onclick="abrirSorteioLoteria('${r._id}')" class="btn" style="background:var(--secondary); padding:5px 10px;">Informar Loteria Federal</button>`;
+            acao = `<button onclick="abrirSorteioLoteria('${r._id}')" class="btn" style="background:var(--secondary-color); padding:5px 10px;">Informar Loteria Federal</button>`;
         } else if (r.status === 'sorteada') {
-            acao = `<span style="color:var(--primary)">Sorteado: ${r.numeroSorteado}</span>`;
+            acao = `<span style="color:var(--primary-color)">Sorteado: ${r.numeroSorteado}</span>`;
         }
 
         tbody.innerHTML += `
@@ -43,9 +75,23 @@ async function carregarRifasAdmin() {
 
 document.getElementById('form-nova-rifa').addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const fotoInput = document.getElementById('n-foto');
+    const fotoArquivo = fotoInput.files && fotoInput.files[0];
+
+    let imagemBase64 = '';
+    if (fotoArquivo) {
+        if (!fotoArquivo.type.startsWith('image/')) {
+            return alert('Selecione um arquivo de imagem válido.');
+        }
+        imagemBase64 = await arquivoParaBase64(fotoArquivo);
+    }
+
     const data = {
-        titulo: document.getElementById('n-titulo').value,
-        premio: document.getElementById('n-premio').value,
+        titulo: document.getElementById('n-titulo').value.trim(),
+        premio: document.getElementById('n-premio').value.trim(),
+        descricao: document.getElementById('n-descricao').value.trim(),
+        imagemBase64,
         valorNumero: parseFloat(document.getElementById('n-valor').value)
     };
 
@@ -53,6 +99,9 @@ document.getElementById('form-nova-rifa').addEventListener('submit', async (e) =
         await fetchAPI('/admin-api/rifas', { method: 'POST', body: JSON.stringify(data) });
         alert('Rifa criada!');
         e.target.reset();
+        const preview = document.getElementById('preview-foto');
+        preview.style.display = 'none';
+        preview.removeAttribute('src');
         carregarStats();
         carregarRifasAdmin();
     } catch (err) {

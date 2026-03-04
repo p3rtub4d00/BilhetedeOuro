@@ -13,6 +13,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
 const PORT = process.env.PORT || 3000;
+const LIMPEZA_TTL_INTERVAL_MS = 60 * 1000;
 
 // BANCO DE DADOS EM MEMÓRIA (Para testes)
 const db = {
@@ -39,6 +40,19 @@ app.use(session({
 
 // Disponibilizar io para as rotas
 app.set('io', io);
+
+// Limpeza periódica de OTP/token expirados (higiene de memória)
+setInterval(() => {
+    const agora = Date.now();
+
+    for (const [telefone, otp] of db.otpByPhone.entries()) {
+        if (!otp || agora > otp.expiraEm) db.otpByPhone.delete(telefone);
+    }
+
+    for (const [token, sessao] of db.tokensConsulta.entries()) {
+        if (!sessao || agora > sessao.expiraEm) db.tokensConsulta.delete(token);
+    }
+}, LIMPEZA_TTL_INTERVAL_MS);
 
 // Rotas
 app.use('/api', apiRoutes);

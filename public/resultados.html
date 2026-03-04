@@ -24,6 +24,11 @@
 
     <script src="/js/main.js"></script>
     <script>
+        function formatarDataHora(ts) {
+            if (!ts) return 'Data não informada';
+            return new Date(ts).toLocaleString('pt-BR');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const list = document.getElementById('resultados-list');
             try {
@@ -42,6 +47,7 @@
                             
                             <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Loteria Federal</p>
                             <p style="font-size: 0.85rem; margin-bottom: 15px; font-family: 'Roboto';">${rifa.resultadoLoteria}</p>
+                            <p style="font-size: 0.8rem; margin: -8px 0 15px; color: var(--text-light); font-family: 'Roboto';"><strong>Data do sorteio:</strong> ${formatarDataHora(rifa.dataSorteio)}</p>
                             
                             <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; margin-bottom: 15px;">
                                 <span style="font-size: 0.8rem; font-weight: 700;">NÚMERO SORTEADO</span>

@@ -47,25 +47,74 @@ function atualizarCheckout() {
     document.getElementById('valor-total').innerText = `Total: R$ ${total.toFixed(2)}`;
 }
 
-function baixarComprovanteTexto(dados) {
+function baixarComprovantePDF(dados) {
+    const jsPdfLib = window.jspdf;
+    if (!jsPdfLib || !jsPdfLib.jsPDF) {
+        throw new Error('Biblioteca de PDF não carregada. Recarregue a página e tente novamente.');
+    }
+
+    const { jsPDF } = jsPdfLib;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    const margemX = 15;
+    let y = 18;
+
+    doc.setFillColor(30, 41, 59);
+    doc.rect(0, 0, 210, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('BILHETE DE OURO - COMPROVANTE', margemX, 18);
+
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    y = 40;
+
     const linhas = [
-        'COMPROVANTE DE COMPRA - BILHETE DE OURO',
-        `Rifa: ${rifaData.titulo}`,
-        `Compra ID: ${dados.compraId}`,
-        `Comprovante: ${dados.comprovante.numero}`,
-        `Hash de Verificação: ${dados.comprovante.hash}`,
-        `Valor Total: R$ ${dados.comprovante.valorTotal.toFixed(2)}`,
-        `Data: ${new Date(dados.comprovante.criadoEm).toLocaleString('pt-BR')}`,
-        `Números: ${dados.numerosGerados.join(', ')}`
+        ['Rifa', rifaData.titulo],
+        ['Prêmio', rifaData.premio],
+        ['Compra ID', dados.compraId],
+        ['Comprovante', dados.comprovante.numero],
+        ['Data/Hora', new Date(dados.comprovante.criadoEm).toLocaleString('pt-BR')],
+        ['Valor Total', `R$ ${dados.comprovante.valorTotal.toFixed(2)}`],
+        ['Quantidade de cotas', String(quantidade)]
     ];
 
-    const blob = new Blob([linhas.join('\n')], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${dados.comprovante.numero}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    linhas.forEach(([chave, valor]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${chave}:`, margemX, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(valor), margemX + 38, y);
+        y += 7;
+    });
+
+    y += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Números gerados:', margemX, y);
+    y += 6;
+
+    doc.setFont('courier', 'normal');
+    const numerosTexto = dados.numerosGerados.join('  •  ');
+    const numerosLinhas = doc.splitTextToSize(numerosTexto, 180);
+    doc.text(numerosLinhas, margemX, y);
+    y += numerosLinhas.length * 5 + 6;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Hash de verificação:', margemX, y);
+    y += 5;
+
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(9);
+    const hashLinhas = doc.splitTextToSize(dados.comprovante.hash, 180);
+    doc.text(hashLinhas, margemX, y);
+    y += hashLinhas.length * 4 + 10;
+
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.text('Valide o comprovante em: /compras.html -> Verificar Comprovante', margemX, y);
+
+    doc.save(`${dados.comprovante.numero}.pdf`);
 }
 
 document.getElementById('form-compra').addEventListener('submit', async (e) => {
@@ -108,7 +157,13 @@ document.getElementById('form-compra').addEventListener('submit', async (e) => {
 
         const btnDownload = document.getElementById('btn-comprovante');
         btnDownload.style.display = 'block';
-        btnDownload.onclick = () => baixarComprovanteTexto(res);
+        btnDownload.onclick = () => {
+            try {
+                baixarComprovantePDF(res);
+            } catch (err) {
+                showAlert('alert-box', err.message || 'Erro ao gerar PDF.');
+            }
+        };
 
     } catch (error) {
         showAlert('alert-box', error.message);

@@ -12,7 +12,7 @@
     </header>
 
     <main class="container">
-        <h2 class="title">Últimos Ganhadores</h2>
+        <h2 class="title">Últimos Ganhadores (Loteria Federal)</h2>
         <div class="grid-rifas" id="resultados-list"></div>
     </main>
 
@@ -25,13 +25,23 @@
             if(rifas.length === 0) return list.innerHTML = '<p>Nenhum sorteio realizado ainda.</p>';
 
             rifas.forEach(rifa => {
+                const isAcumulado = rifa.vencedorInfo.includes('ACUMULOU');
+                const winnerColor = isAcumulado ? '#ff5252' : 'var(--primary)';
+
                 list.innerHTML += `
                     <div class="card" style="border-color: var(--secondary)">
                         <h3 style="color: var(--secondary)">🏆 ${rifa.titulo}</h3>
                         <p><strong>Prêmio:</strong> ${rifa.premio}</p>
                         <hr style="border-color: var(--border); margin: 10px 0;">
-                        <p><strong>Vencedor:</strong> ${rifa.vencedorInfo}</p>
-                        <p><strong>Bilhete Sorteado:</strong> <span style="font-size: 1.5rem; color: var(--primary); display:block;">${rifa.numeroSorteado.toString().padStart(3, '0')}</span></p>
+                        
+                        <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">Sorteio (Loteria Federal):</p>
+                        <p style="font-size: 0.9rem;">${rifa.resultadoLoteria}</p>
+                        
+                        <div style="background: var(--bg-dark); padding: 10px; margin: 15px 0; border-radius: 6px;">
+                            <p><strong>Bilhete Sorteado:</strong> <span style="font-size: 1.5rem; color: var(--secondary); display:block; font-family: monospace;">${rifa.numeroSorteado}</span></p>
+                        </div>
+
+                        <p><strong>Ganhador:</strong> <span style="color: ${winnerColor}; font-weight: bold;">${rifa.vencedorInfo}</span></p>
                     </div>
                 `;
             });

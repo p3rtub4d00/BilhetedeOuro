@@ -2,42 +2,69 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bilhete de Ouro - Oficial</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container" style="max-width: 400px; margin-top: 100px;">
-        <div class="card">
-            <h2 class="title">Admin Login</h2>
-            <div id="alert-box"></div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>Usuário (admin)</label>
-                    <input type="text" id="user" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha (admin123)</label>
-                    <input type="password" id="pass" class="form-control" required>
-                </div>
-                <button type="submit" class="btn">Entrar</button>
-            </form>
+
+    <header class="hero-header">
+        <div class="top-bar">
+            <a href="/" class="logo-area">
+                <i class="fa-solid fa-ticket-simple"></i> BILHETE<span class="highlight">OURO</span>
+            </a>
+            <div>
+                <a href="/compras.html" class="btn-nav-outline"><i class="fa-solid fa-receipt"></i> Minhas Cotas</a>
+                <a href="/resultados.html" class="btn-nav-outline"><i class="fa-solid fa-trophy"></i> Resultados</a>
+            </div>
         </div>
-    </div>
+        
+        <div class="hero-content">
+            <h1 class="main-title">A SUA SORTE!</h1>
+            <p class="subtitle">Campanhas exclusivas e sorteios pela Loteria Federal.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid-rifas" id="rifas-list">
+            <div class="card"><p style="color: var(--text-light);">Carregando prêmios...</p></div>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fa-solid fa-shield-halved"></i> 100% Seguro. Resultados pela Caixa Econômica Federal.</p>
+        <p style="margin-top: 10px;">&copy; 2026 Bilhete de Ouro.</p>
+    </footer>
+
     <script src="/js/main.js"></script>
     <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const list = document.getElementById('rifas-list');
             try {
-                await fetchAPI('/admin-api/login', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        username: document.getElementById('user').value,
-                        password: document.getElementById('pass').value
-                    })
+                const rifas = await fetchAPI('/api/rifas');
+                list.innerHTML = '';
+                
+                if(rifas.length === 0) return list.innerHTML = '<div class="card"><p>Nenhuma campanha ativa no momento.</p></div>';
+
+                rifas.forEach(rifa => {
+                    const isEncerrada = rifa.status !== 'ativa';
+                    list.innerHTML += `
+                        <div class="card" style="${isEncerrada ? 'opacity: 0.7;' : ''}">
+                            <h3 class="card-title">${rifa.titulo}</h3>
+                            <p class="card-desc">${rifa.premio}</p>
+                            <span class="price-box">R$ ${rifa.valorNumero.toFixed(2).replace('.', ',')}</span>
+                            ${isEncerrada ? 
+                                `<button class="btn-primary" disabled><i class="fa-solid fa-lock"></i> ENCERRADA</button>` : 
+                                `<a href="/rifa.html?id=${rifa._id}" class="btn-primary"><i class="fa-solid fa-cart-shopping"></i> Comprar Agora</a>`
+                            }
+                        </div>
+                    `;
                 });
-                window.location.href = '/admin/painel.html';
             } catch (err) {
-                showAlert('alert-box', 'Credenciais inválidas');
+                list.innerHTML = '<div class="card"><p>Erro ao carregar campanhas.</p></div>';
             }
         });
     </script>

@@ -47,6 +47,32 @@ function atualizarCheckout() {
     document.getElementById('valor-total').innerText = `Total: R$ ${total.toFixed(2)}`;
 }
 
+function adicionarMarcaDagua(doc) {
+    doc.setTextColor(235, 238, 245);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(46);
+    doc.text('BILHETE DE OURO', 105, 170, {
+        align: 'center',
+        angle: 45
+    });
+}
+
+function gerarAssinaturaVisual(hash) {
+    return `${hash.slice(0, 12)}-${hash.slice(-12)}`;
+}
+
+function gerarQrDataUrl(texto) {
+    if (typeof QRious === 'undefined') return null;
+
+    const qr = new QRious({
+        value: texto,
+        size: 220,
+        level: 'M'
+    });
+
+    return qr.toDataURL('image/png');
+}
+
 function baixarComprovantePDF(dados) {
     const jsPdfLib = window.jspdf;
     if (!jsPdfLib || !jsPdfLib.jsPDF) {
@@ -55,6 +81,8 @@ function baixarComprovantePDF(dados) {
 
     const { jsPDF } = jsPdfLib;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    adicionarMarcaDagua(doc);
 
     const margemX = 15;
     let y = 18;
@@ -106,13 +134,28 @@ function baixarComprovantePDF(dados) {
 
     doc.setFont('courier', 'normal');
     doc.setFontSize(9);
-    const hashLinhas = doc.splitTextToSize(dados.comprovante.hash, 180);
+    const hashLinhas = doc.splitTextToSize(dados.comprovante.hash, 125);
     doc.text(hashLinhas, margemX, y);
-    y += hashLinhas.length * 4 + 10;
+
+    // QR de validação
+    const urlValidacao = `${window.location.origin}/api/comprovantes/${dados.comprovante.numero}`;
+    const qrDataUrl = gerarQrDataUrl(urlValidacao);
+    if (qrDataUrl) {
+        doc.addImage(qrDataUrl, 'PNG', 155, y - 2, 40, 40);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.text('QR de validação', 175, y + 41, { align: 'center' });
+    }
+
+    y += Math.max(hashLinhas.length * 4 + 10, 46);
 
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(9);
-    doc.text('Valide o comprovante em: /compras.html -> Verificar Comprovante', margemX, y);
+    doc.text(`Validação: ${urlValidacao}`, margemX, y);
+
+    y += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Assinatura digital: ${gerarAssinaturaVisual(dados.comprovante.hash)}`, margemX, y);
 
     doc.save(`${dados.comprovante.numero}.pdf`);
 }

@@ -19,12 +19,33 @@
     </header>
 
     <main class="container">
-        <div class="card" style="max-width: 450px; margin: 0 auto 30px;">
+        <div class="card" style="max-width: 550px; margin: 0 auto 20px; text-align: left;">
+            <h3 style="margin-bottom: 10px;">Consulta Segura</h3>
+            <div id="alert-box"></div>
+
             <div class="form-group">
-                <label style="text-align: center; font-size: 1rem;">Digite o WhatsApp da compra</label>
-                <input type="text" id="tel-busca" class="form-control" placeholder="(11) 99999-9999" style="text-align: center; font-size: 1.2rem; font-weight: bold;">
+                <label>WhatsApp da compra</label>
+                <input type="text" id="tel-busca" class="form-control" placeholder="(11) 99999-9999">
             </div>
-            <button onclick="buscarCompras()" class="btn-primary"><i class="fa-solid fa-magnifying-glass"></i> BUSCAR</button>
+            <button onclick="solicitarCodigo()" class="btn-primary"><i class="fa-solid fa-shield"></i> ENVIAR CÓDIGO</button>
+
+            <div style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                <div class="form-group">
+                    <label>Código de verificação</label>
+                    <input type="text" id="codigo-otp" class="form-control" placeholder="Digite o código recebido">
+                </div>
+                <button onclick="validarCodigoEBuscar()" class="btn-primary" style="background: #1e293b; color: #fff;"><i class="fa-solid fa-key"></i> VALIDAR E BUSCAR</button>
+            </div>
+        </div>
+
+        <div class="card" style="max-width: 550px; margin: 0 auto 30px; text-align: left;">
+            <h3 style="margin-bottom: 10px;">Verificar Comprovante</h3>
+            <div class="form-group">
+                <label>Número do comprovante</label>
+                <input type="text" id="numero-comprovante" class="form-control" placeholder="Ex: CMP-20260304-12345">
+            </div>
+            <button onclick="verificarComprovante()" class="btn-primary" style="background: #0f766e; color: #fff;"><i class="fa-solid fa-certificate"></i> VERIFICAR</button>
+            <div id="resultado-comprovante" style="margin-top: 12px;"></div>
         </div>
 
         <div id="resultado-busca" style="display: flex; flex-direction: column; gap: 20px; max-width: 700px; margin: 0 auto;"></div>
@@ -32,15 +53,46 @@
 
     <script src="/js/main.js"></script>
     <script>
-        async function buscarCompras() {
+        let tokenConsulta = '';
+
+        async function solicitarCodigo() {
             const tel = document.getElementById('tel-busca').value;
-            const resultBox = document.getElementById('resultado-busca');
-            if(!tel) return;
+            if(!tel) return showAlert('alert-box', 'Informe o telefone.');
 
             try {
-                const compras = await fetchAPI(`/api/minhas-compras/${tel}`);
+                const data = await fetchAPI('/api/minhas-compras/solicitar-codigo', {
+                    method: 'POST',
+                    body: JSON.stringify({ telefone: tel })
+                });
+
+                // Ambiente de teste: mostra código retornado
+                showAlert('alert-box', `Código enviado! (teste: ${data.codigoDebug})`, 'success');
+            } catch (error) {
+                showAlert('alert-box', error.message);
+            }
+        }
+
+        async function validarCodigoEBuscar() {
+            const tel = document.getElementById('tel-busca').value;
+            const codigo = document.getElementById('codigo-otp').value.trim();
+            const resultBox = document.getElementById('resultado-busca');
+
+            if(!tel || !codigo) return showAlert('alert-box', 'Informe telefone e código.');
+
+            try {
+                const auth = await fetchAPI('/api/minhas-compras/verificar-codigo', {
+                    method: 'POST',
+                    body: JSON.stringify({ telefone: tel, codigo })
+                });
+
+                tokenConsulta = auth.token;
+
+                const compras = await fetchAPI('/api/minhas-compras', {
+                    headers: { Authorization: `Bearer ${tokenConsulta}` }
+                });
+
                 let html = '';
-                if(compras.length === 0) {
+                if(!compras || compras.length === 0) {
                     html = '<div class="card"><p style="color: var(--text-light);">Nenhuma cota encontrada.</p></div>';
                 } else {
                     compras.forEach(c => {
@@ -52,16 +104,36 @@
                                     <span style="background: #00C853; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 900;">PAGO</span>
                                 </div>
                                 <p style="font-family: 'Roboto'; font-size: 0.9rem;"><strong>Qtd. Cotas:</strong> ${c.quantidade}</p>
-                                <div class="meus-numeros-box" style="margin-top: 15px;">
-                                    ${tagsHTML}
-                                </div>
+                                <p style="font-family: 'Roboto'; font-size: 0.85rem;"><strong>Comprovante:</strong> ${c.numeroComprovante || '-'}</p>
+                                <div class="meus-numeros-box" style="margin-top: 15px;">${tagsHTML}</div>
                             </div>
                         `;
                     });
                 }
                 resultBox.innerHTML = html;
             } catch (error) {
-                resultBox.innerHTML = '<div class="alert alert-error">Erro ao buscar dados.</div>';
+                showAlert('alert-box', error.message);
+                resultBox.innerHTML = '';
+            }
+        }
+
+        async function verificarComprovante() {
+            const numero = document.getElementById('numero-comprovante').value.trim();
+            const box = document.getElementById('resultado-comprovante');
+            if(!numero) return;
+
+            try {
+                const c = await fetchAPI(`/api/comprovantes/${numero}`);
+                box.innerHTML = `
+                    <div class="alert" style="background:#ecfeff; border:1px dashed #0891b2; text-align:left;">
+                        <p><strong>Status:</strong> ${c.statusPagamento.toUpperCase()}</p>
+                        <p><strong>Rifa:</strong> ${c.rifa ? c.rifa.titulo : 'N/A'}</p>
+                        <p><strong>Comprador:</strong> ${c.comprador.nome} (${c.comprador.telefoneMascarado})</p>
+                        <p style="word-break: break-all;"><strong>Hash:</strong> ${c.hashComprovante}</p>
+                    </div>
+                `;
+            } catch (err) {
+                box.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
             }
         }
     </script>

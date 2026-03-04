@@ -12,12 +12,12 @@
     </header>
 
     <main class="container">
-        <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
-            <div class="card" style="flex: 1;">
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <div class="card" style="flex: 1; min-width: 260px;">
                 <h3>Total de Rifas</h3>
                 <span class="price" id="stat-rifas">0</span>
             </div>
-            <div class="card" style="flex: 1;">
+            <div class="card" style="flex: 1; min-width: 260px;">
                 <h3>Receita Aprovada</h3>
                 <span class="price" style="color: var(--secondary-color)" id="stat-receita">R$ 0,00</span>
             </div>
@@ -29,6 +29,16 @@
                 <div class="form-group"><label>Título da Rifa</label><input type="text" id="n-titulo" class="form-control" required></div>
                 <div class="form-group"><label>Prêmio</label><input type="text" id="n-premio" class="form-control" required></div>
                 <div class="form-group"><label>Valor da Cota (R$)</label><input type="number" step="0.01" id="n-valor" class="form-control" required></div>
+                <div class="form-group">
+                    <label>Descrição do item</label>
+                    <textarea id="n-descricao" class="form-control" rows="3" placeholder="Descreva os detalhes do item da rifa..."></textarea>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Foto do item (JPG, PNG ou WEBP)</label>
+                    <input type="file" id="n-foto" class="form-control" accept="image/*">
+                    <small style="color: var(--text-light); font-family: 'Roboto';">Dica: use imagens leves para não deixar o sistema lento (máx. recomendado ~2MB).</small>
+                    <img id="preview-foto" alt="Pré-visualização da foto" style="display:none; margin-top: 10px; max-width: 240px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <button type="submit" class="btn">Cadastrar Rifa</button>
                 </div>

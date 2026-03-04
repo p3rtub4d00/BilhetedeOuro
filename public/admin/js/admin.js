@@ -76,26 +76,36 @@ async function carregarRifasAdmin() {
 document.getElementById('form-nova-rifa').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = 'Cadastrando...';
+
     const fotoInput = document.getElementById('n-foto');
     const fotoArquivo = fotoInput.files && fotoInput.files[0];
 
-    let imagemBase64 = '';
-    if (fotoArquivo) {
-        if (!fotoArquivo.type.startsWith('image/')) {
-            return alert('Selecione um arquivo de imagem válido.');
-        }
-        imagemBase64 = await arquivoParaBase64(fotoArquivo);
-    }
-
-    const data = {
-        titulo: document.getElementById('n-titulo').value.trim(),
-        premio: document.getElementById('n-premio').value.trim(),
-        descricao: document.getElementById('n-descricao').value.trim(),
-        imagemBase64,
-        valorNumero: parseFloat(document.getElementById('n-valor').value)
-    };
-
     try {
+        let imagemBase64 = '';
+        if (fotoArquivo) {
+            if (!fotoArquivo.type.startsWith('image/')) {
+                throw new Error('Selecione um arquivo de imagem válido.');
+            }
+
+            // Limite no cliente: 2MB (evita travar e erro de payload)
+            if (fotoArquivo.size > 2 * 1024 * 1024) {
+                throw new Error('A imagem deve ter no máximo 2MB.');
+            }
+
+            imagemBase64 = await arquivoParaBase64(fotoArquivo);
+        }
+
+        const data = {
+            titulo: document.getElementById('n-titulo').value.trim(),
+            premio: document.getElementById('n-premio').value.trim(),
+            descricao: document.getElementById('n-descricao').value.trim(),
+            imagemBase64,
+            valorNumero: parseFloat(document.getElementById('n-valor').value)
+        };
+
         await fetchAPI('/admin-api/rifas', { method: 'POST', body: JSON.stringify(data) });
         alert('Rifa criada!');
         e.target.reset();
@@ -106,6 +116,9 @@ document.getElementById('form-nova-rifa').addEventListener('submit', async (e) =
         carregarRifasAdmin();
     } catch (err) {
         alert('Erro ao criar: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Cadastrar Rifa';
     }
 });
 

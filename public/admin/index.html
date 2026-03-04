@@ -3,50 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilhete de Ouro - Rifas Online</title>
+    <title>Login Admin - Bilhete de Ouro</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>🎫 Bilhete de Ouro</h1>
-        <nav>
-            <a href="/">Início</a>
-            <a href="/compras.html">Minhas Compras</a>
-            <a href="/resultados.html">Resultados</a>
-            <a href="#" class="btn-bingo-nav">🎲 Jogar Bingo do Pix</a>
-        </nav>
+    <header style="border-bottom: 2px solid #555;">
+        <h1 style="color: #fff;">Acesso <span style="color: var(--primary)">Administrativo</span></h1>
+        <nav><a href="/" class="btn" style="background: #1e293b; color:#fff;">Voltar ao site</a></nav>
     </header>
 
-    <main class="container">
-        <h2 class="title">Rifas em Destaque</h2>
-        <div class="grid-rifas" id="rifas-list">
-            <p>Carregando campanhas...</p>
+    <main class="container" style="max-width: 420px; margin-top: 2rem;">
+        <div class="card" style="text-align: left;">
+            <h2 class="title" style="text-align: left; margin-bottom: 1rem;">Login do Administrador</h2>
+
+            <div id="alert-box"></div>
+
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input id="username" class="form-control" type="text" placeholder="admin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input id="password" class="form-control" type="password" placeholder="••••••••" required>
+                </div>
+
+                <button id="btn-login" class="btn" type="submit" style="width: 100%;">Entrar no Painel</button>
+            </form>
         </div>
     </main>
 
     <script src="/js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const list = document.getElementById('rifas-list');
-            const rifas = await fetchAPI('/api/rifas');
-            
-            list.innerHTML = '';
-            if(rifas.length === 0) return list.innerHTML = '<p>Nenhuma rifa ativa.</p>';
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true;
+            btn.innerText = 'Entrando...';
 
-            rifas.forEach(rifa => {
-                const isEncerrada = rifa.status !== 'ativa';
-                list.innerHTML += `
-                    <div class="card" style="${isEncerrada ? 'opacity: 0.7' : ''}">
-                        <h3>${rifa.titulo}</h3>
-                        <p>${rifa.premio}</p>
-                        <span class="price">R$ ${rifa.valorNumero.toFixed(2)}</span>
-                        ${isEncerrada ? 
-                            `<button class="btn" style="background: #555;" disabled>${rifa.status.toUpperCase()}</button>` : 
-                            `<a href="/rifa.html?id=${rifa._id}" class="btn">Comprar Números</a>`
-                        }
-                    </div>
-                `;
-            });
+            try {
+                await fetchAPI('/admin-api/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                window.location.href = '/admin/painel.html';
+            } catch (error) {
+                showAlert('alert-box', error.message || 'Falha ao autenticar.');
+                btn.disabled = false;
+                btn.innerText = 'Entrar no Painel';
+            }
         });
     </script>
 </body>

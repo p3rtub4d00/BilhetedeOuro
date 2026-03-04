@@ -14,7 +14,7 @@
     <main class="container">
         <h2 class="title">Buscar Minhas Cotas</h2>
         <div style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
-            <input type="text" id="tel-busca" class="form-control" placeholder="Digite seu WhatsApp com DDD">
+            <input type="text" id="tel-busca" class="form-control" placeholder="Digite seu WhatsApp">
             <button onclick="buscarCompras()" class="btn" style="margin-top: 10px;">Buscar</button>
         </div>
 
@@ -38,7 +38,6 @@
                             <h3 style="color: var(--primary)">${c.rifaId.titulo}</h3>
                             <p><strong>Status:</strong> ${c.statusPagamento.toUpperCase()}</p>
                             <p><strong>Números:</strong> <span style="color: var(--secondary); font-weight:bold;">${c.numeros.join(', ')}</span></p>
-                            <p><strong>Data:</strong> ${new Date(c.criadoEm).toLocaleString()}</p>
                         </div>
                     `;
                 });

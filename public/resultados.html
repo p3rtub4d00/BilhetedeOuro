@@ -2,17 +2,23 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Resultados - Bilhete de Ouro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resultados Oficiais</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>🎫 Bilhete de Ouro</h1>
-        <nav><a href="/">Início</a></nav>
+
+    <header class="hero-header" style="padding-bottom: 50px;">
+        <div class="top-bar">
+            <a href="/" class="logo-area"><i class="fa-solid fa-ticket-simple"></i> BILHETE<span class="highlight">OURO</span></a>
+            <a href="/" class="btn-nav-outline"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+        </div>
+        <h1 class="main-title" style="color: var(--accent-gold); font-size: 1.8rem;"><i class="fa-solid fa-trophy"></i> GANHADORES</h1>
     </header>
 
     <main class="container">
-        <h2 class="title">Últimos Ganhadores (Loteria Federal)</h2>
         <div class="grid-rifas" id="resultados-list"></div>
     </main>
 
@@ -20,31 +26,38 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const list = document.getElementById('resultados-list');
-            const rifas = await fetchAPI('/api/resultados');
-            
-            if(rifas.length === 0) return list.innerHTML = '<p>Nenhum sorteio realizado ainda.</p>';
+            try {
+                const rifas = await fetchAPI('/api/resultados');
+                
+                if(rifas.length === 0) return list.innerHTML = '<div class="card" style="grid-column: 1/-1;"><p>Nenhum sorteio finalizado.</p></div>';
 
-            rifas.forEach(rifa => {
-                const isAcumulado = rifa.vencedorInfo.includes('ACUMULOU');
-                const winnerColor = isAcumulado ? '#ff5252' : 'var(--primary)';
+                rifas.forEach(rifa => {
+                    const isAcumulado = rifa.vencedorInfo.includes('ACUMULOU');
+                    const statusColor = isAcumulado ? '#dc2626' : '#00C853';
 
-                list.innerHTML += `
-                    <div class="card" style="border-color: var(--secondary)">
-                        <h3 style="color: var(--secondary)">🏆 ${rifa.titulo}</h3>
-                        <p><strong>Prêmio:</strong> ${rifa.premio}</p>
-                        <hr style="border-color: var(--border); margin: 10px 0;">
-                        
-                        <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 5px;">Sorteio (Loteria Federal):</p>
-                        <p style="font-size: 0.9rem;">${rifa.resultadoLoteria}</p>
-                        
-                        <div style="background: var(--bg-dark); padding: 10px; margin: 15px 0; border-radius: 6px;">
-                            <p><strong>Bilhete Sorteado:</strong> <span style="font-size: 1.5rem; color: var(--secondary); display:block; font-family: monospace;">${rifa.numeroSorteado}</span></p>
+                    list.innerHTML += `
+                        <div class="card" style="border-top: 5px solid ${statusColor}; text-align: left;">
+                            <h3 class="card-title">${rifa.titulo}</h3>
+                            <p class="card-desc" style="border-bottom: 2px solid #f0f2f5; padding-bottom: 10px;">${rifa.premio}</p>
+                            
+                            <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">Loteria Federal</p>
+                            <p style="font-size: 0.85rem; margin-bottom: 15px; font-family: 'Roboto';">${rifa.resultadoLoteria}</p>
+                            
+                            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; margin-bottom: 15px;">
+                                <span style="font-size: 0.8rem; font-weight: 700;">NÚMERO SORTEADO</span>
+                                <span style="font-size: 2.2rem; color: var(--text-dark); display:block; font-weight: 900; letter-spacing: 5px;">${rifa.numeroSorteado}</span>
+                            </div>
+
+                            <div style="background: ${isAcumulado ? '#fef2f2' : '#f0fdf4'}; padding: 15px; border-radius: 12px; border: 1px dashed ${statusColor};">
+                                <span style="font-size: 0.8rem; font-weight: 700; color: ${statusColor}; display:block;">GANHADOR:</span>
+                                <strong style="color: var(--text-dark); font-size: 1rem;">${rifa.vencedorInfo}</strong>
+                            </div>
                         </div>
-
-                        <p><strong>Ganhador:</strong> <span style="color: ${winnerColor}; font-weight: bold;">${rifa.vencedorInfo}</span></p>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            } catch (err) {
+                list.innerHTML = '<div class="card"><p>Erro ao carregar resultados.</p></div>';
+            }
         });
     </script>
 </body>

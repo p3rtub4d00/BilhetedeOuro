@@ -34,10 +34,15 @@ router.get('/stats', authMiddleware, (req, res) => {
 
 router.post('/rifas', authMiddleware, (req, res) => {
     const db = req.app.locals.db;
-    const { titulo, premio, valorNumero, descricao, imagemBase64 } = req.body;
+    const { titulo, premio, valorNumero, descricao, imagemBase64, dataSorteioPrevista } = req.body;
 
-    if (!titulo || !premio || !valorNumero) {
-        return res.status(400).json({ error: 'Título, prêmio e valor da cota são obrigatórios.' });
+    if (!titulo || !premio || !valorNumero || !dataSorteioPrevista) {
+        return res.status(400).json({ error: 'Título, prêmio, valor da cota e data do sorteio são obrigatórios.' });
+    }
+
+    const dataPrevistaTs = new Date(dataSorteioPrevista).getTime();
+    if (Number.isNaN(dataPrevistaTs)) {
+        return res.status(400).json({ error: 'Data do sorteio inválida.' });
     }
 
     if (descricao && descricao.length > 500) {
@@ -62,6 +67,7 @@ router.post('/rifas', authMiddleware, (req, res) => {
         valorNumero,
         descricao: descricao || '',
         imagemBase64: imagemBase64 || '',
+        dataSorteioPrevista: dataPrevistaTs,
         status: 'ativa',
         numeroSorteado: null,
         resultadoLoteria: null,
